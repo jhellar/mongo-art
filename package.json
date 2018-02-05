@@ -1,0 +1,25 @@
+{
+  "name": "mongo-art",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "config": "node utils/config.js",
+    "start": "mocha"
+  },
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "adm-zip": "^0.4.7",
+    "async": "^2.6.0",
+    "browser-run": "^4.1.1",
+    "fh-fhc": "^2.18.0-896",
+    "fh-js-sdk": "^2.24.1",
+    "mocha": "^5.0.0",
+    "mongodb": "^3.0.2",
+    "request": "^2.83.0",
+    "request-promise-native": "^1.0.5",
+    "yargs": "^11.0.0"
+  }
+}
