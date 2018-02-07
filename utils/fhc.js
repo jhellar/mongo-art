@@ -172,6 +172,54 @@ function connectionsList(projectId) {
   });
 }
 
+function createForm(formfile) {
+  return new Promise((resolve, reject) => {
+    fh.appforms.forms.create({ formfile }, (error, result) => {
+      if (error) {
+        return reject(error);
+      }
+
+      resolve(result);
+    });
+  });
+}
+
+function deployForm(id, environment) {
+  return new Promise((resolve, reject) => {
+    fh.appforms.environments.forms.deploy({id, environment}, (error, result) => {
+      if (error) {
+        return reject(error);
+      }
+
+      resolve(result);
+    });
+  });
+}
+
+function createFormTheme(themefile) {
+  return new Promise((resolve, reject) => {
+    fh.appforms.themes.create({themefile}, (error, result) => {
+      if (error) {
+        return reject(error);
+      }
+
+      resolve(result);
+    });
+  });
+}
+
+function associateFormWithProject(id, theme, forms) {
+  return new Promise((resolve, reject) => {
+    fh.appforms.projects.create({ id, theme, forms }, (error, result) => {
+      if (error) {
+        return reject(error);
+      }
+
+      resolve(result);
+    });
+  });
+}
+
 module.exports = {
     init,
     createProject,
@@ -180,5 +228,9 @@ module.exports = {
     importApp,
     projectDelete,
     getCloudUrl,
-    connectionsList
+    connectionsList,
+    createForm,
+    deployForm,
+    createFormTheme,
+    associateFormWithProject
 };

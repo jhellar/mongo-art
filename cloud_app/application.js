@@ -2,6 +2,7 @@ var mbaasApi = require('fh-mbaas-api');
 var express = require('express');
 var mbaasExpress = mbaasApi.mbaasExpress();
 var cors = require('cors');
+var bodyParser = require('body-parser');
 
 // list the endpoints which you want to make securable here
 var securableEndpoints;
@@ -41,6 +42,36 @@ app.get('/test', function(req, res) {
     'fields': { value: 'test-value' }
   }, function(err, data) {
     res.json({ url: process.env.FH_MONGODB_CONN_URL });
+  });
+});
+
+app.post('/submission', bodyParser(), function(req, res) {
+  const fieldEntry = {
+    fieldId: req.body.form.pages[0].fields[0]._id,
+    fieldValues: ['test']
+  };
+  const submission = {
+    "timezoneOffset": -60,  // https://issues.jboss.org/browse/RHMAP-15423
+    "formId": req.body.form._id,
+    "deviceFormTimestamp": 1496909713881,
+    "appId": req.body.clientApp.guid,
+    "deviceIPAddress": "192.168.0.1",
+    "comments": [],
+    "formFields": [fieldEntry],
+    "deviceId": "A200CC72B96946148950EC1EB0FE688B"
+  };
+  var options = {
+    submission: submission,
+    appClientId: req.body.clientApp.guid
+  };
+  mbaasApi.forms.submitFormData(options, function(err, data) {
+    mbaasApi.forms.completeSubmission({
+      submission: {
+        submissionId: data.submissionId
+      }
+    }, function(err, data) {
+      res.json({ msg: 'ok' });
+    });
   });
 });
 
