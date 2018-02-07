@@ -31,7 +31,7 @@ async function runClientApp() {
   const clientAppFile = path.resolve(clientAppFolder, 'index.js');
   await new Promise((resolve, reject) => {
     fs.createReadStream(clientAppFile)
-    .pipe(browser({ node: true, basedir: clientAppFolder }))
+    .pipe(browser({ node: true, basedir: clientAppFolder, ignoreCertErrors: true }))
     .pipe(process.stdout)
     .on('error', reject)
     .on('finish', resolve);

@@ -13,7 +13,7 @@
   "dependencies": {
     "adm-zip": "^0.4.7",
     "async": "^2.6.0",
-    "browser-run": "^4.1.1",
+    "browser-run": "git://github.com/jhellar/browser-run.git#ignoreCertificateErrors",
     "fh-fhc": "^2.18.0-896",
     "fh-js-sdk": "^2.24.1",
     "fh-mbaas-client": ">0.16.0",
