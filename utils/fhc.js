@@ -1,6 +1,7 @@
 const fh = require('fh-fhc');
 const fs = require('fs');
 const request = require('request');
+const mute = require('mute');
 
 let localTokens = {};
 let rhmapHost;
@@ -41,7 +42,7 @@ function init(host, username, password) {
 
 function appDeploy(appGuid, env, runtime) {
     return new Promise(function(resolve, reject) {
-    //   const unmute = mute();
+      const unmute = mute();
       const args = {
         app: appGuid,
         env,
@@ -53,7 +54,7 @@ function appDeploy(appGuid, env, runtime) {
       };
   
       fh.app.stage(args, function(error, startRes) {
-        // unmute();
+        unmute();
   
         if (error) {
           return reject(error);
@@ -220,6 +221,30 @@ function associateFormWithProject(id, theme, forms) {
   });
 }
 
+function deleteForm(id) {
+  return new Promise((resolve, reject) => {
+    fh.appforms.forms.delete({id}, (error, result) => {
+      if (error) {
+        return reject(error);
+      }
+
+      resolve(result);
+    });
+  });
+}
+
+function deleteFormTheme(id) {
+  return new Promise((resolve, reject) => {
+    fh.appforms.themes.delete({id}, (error, result) => {
+      if (error) {
+        return reject(error);
+      }
+
+      resolve(result);
+    });
+  });
+}
+
 module.exports = {
     init,
     createProject,
@@ -232,5 +257,7 @@ module.exports = {
     createForm,
     deployForm,
     createFormTheme,
-    associateFormWithProject
+    associateFormWithProject,
+    deleteForm,
+    deleteFormTheme
 };
