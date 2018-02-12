@@ -4,3 +4,4 @@ cloudapp.zip
 config.json
 fhc-debug.log
 client_app/fhconfig.json
+.vscode
