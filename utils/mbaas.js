@@ -1,24 +1,36 @@
 const client = require("fh-mbaas-client");
+const exec = require('./execute');
 
 const config = require("../config.json");
-const params = {
-    fhMbaasHost: "https://mbaas-mbaas1.b5e6.rhm-eng-a.openshiftapps.com",
-    domain: 'rhmap',
-    servicekey: config.servicekey,
-    environment: config.env,
-    url: "Necessary param for fh-mbaas-client"
-  };
 
-function initClient() {
+let params;
+
+async function prepareMbaasParams() {
+    const mongoConfig = JSON.parse(await exec.getStdout('oc get cm mongo-config -o json'));
+    const mbaasUrl = JSON.parse(await exec.getStdout('oc get routes mbaas -o json')).spec.host;
+    params = {
+        username: mongoConfig['mongodb-fhmbaas-user'],
+        password: mongoConfig['mongodb-fhmbaas-password'],
+        fhMbaasHost: `https://${mbaasUrl}`,
+        domain: config.domain,
+        servicekey: config.servicekey,
+        environment: config.env,
+        url: "Necessary param for fh-mbaas-client"
+    };
+}
+
+async function initClient() {
+    await prepareMbaasParams();
     return new Promise((resolve,reject) => {
-        client.initEnvironment(config.environment, config);
+
+        client.initEnvironment(config.environment, params);
         resolve(true);
     });
 }
 
-function deployForm(formDefenition) {
+async function deployForm(formDefenition) {
     return new Promise((resolve, reject)=>{
-        let requiredFields = Object.assign({form: formDefenition},params);
+        let requiredFields = Object.assign({form: formDefenition, id: 0},params);
         client.admin.forms.deploy(requiredFields,(err, res) => {
             if (err) {
                 reject(err);
@@ -29,9 +41,10 @@ function deployForm(formDefenition) {
     });
 }
 
-function undeployForm(formId) {
+async function undeployForm(formId) {
     return new Promise((resolve, reject)=>{
-        client.admin.forms.undeploy({id:formId},(err, res) => {
+        let requiredFields = Object.assign({id: formId},params);
+        client.admin.forms.undeploy(requiredFields,(err, res) => {
             if (err) {
                 reject(err);
             }
@@ -43,7 +56,8 @@ function undeployForm(formId) {
 
 function removeForm(formId) {
     return new Promise((resolve, reject)=>{
-        client.admin.forms.remove({id:formId},(err, res) => {
+        let requiredFields = Object.assign({id: formId},params);
+        client.admin.forms.remove(requiredFields,(err, res) => {
             if (err) {
                 reject(err);
             }

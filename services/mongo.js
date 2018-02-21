@@ -1,11 +1,24 @@
-const MongoClient = require('mongodb').MongoClient;
+const {MongoClient} = require('mongodb');
 const exec = require('../utils/execute');
 
 let userForwarding;
 let systemForwarding;
 
 async function getPrimary(password, project) {
-    const forwarding = await portForwardPod('mongo', 27019, project);
+    //if mongo pod has not status RUNNING or has a message param, mongoClient will fail on connect
+    const projParam = project ? `-n ${project}` : '';
+    const podNames = (await exec.getStdout(`oc get pods ${projParam} | grep mongo | awk '{print $1}'`)).split('\n');
+
+    let forwarding;
+    for (let i in podNames) {
+        let {status} = JSON.parse(await exec.getStdout(`oc get pods ${projParam} ${podNames[i]} -o json`));
+        if(status.message || status.phase!='Running') continue
+        else {
+            forwarding = await portForwardPod(podNames[i], 27019, project);
+            break;
+        }
+    }
+    
     const url = `mongodb://admin:${password}@localhost:27019`;
     const client = await MongoClient.connect(url);
     const db = client.db('admin');

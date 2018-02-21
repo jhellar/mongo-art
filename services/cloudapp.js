@@ -55,7 +55,7 @@ function prepareFormDefinition() {
   var json = JSON.stringify(formFixture);
   fs.writeFileSync(definitionPath, json);
 
-  return definitionPath;
+  return {formDef: formFixture , definitionPath};
 }
 
 function prepareThemeDefinition() {
@@ -74,13 +74,13 @@ function prepareThemeDefinition() {
 }
 
 async function createForm(projectId) {
-  const formFile = prepareFormDefinition();
-  const form = await fhc.createForm(formFile);
+  const formObj = prepareFormDefinition();
+  const form = await fhc.createForm(formObj.definitionPath);
   await fhc.deployForm(form._id, config.env);
   const themeFile = prepareThemeDefinition();
   const theme = await fhc.createFormTheme(themeFile);
   await fhc.associateFormWithProject(projectId, theme._id, form._id);
-  fs.unlinkSync(formFile);
+  fs.unlinkSync(formObj.definitionPath);
   fs.unlinkSync(themeFile);
   return { form, theme };
 }
@@ -89,5 +89,6 @@ module.exports = {
   zipFolder,
   createFHConfigFile,
   runClientApp,
+  prepareFormDefinition,
   createForm
 }
